@@ -1,15 +1,11 @@
+fastapi
+
 jupyterlab
 numpy
 nltk
 detoxify
 pandas
-tqdm
 scikit-learn
-matplotlib
-countrycode
-phonenumbers
-spacy
-faker
 
 datasets
 transformers
