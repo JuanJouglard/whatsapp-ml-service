@@ -4,10 +4,13 @@ import os
 import pandas as pd
 from transformers import AutoTokenizer
 
-from .embedding import EmbeddingWrapper
+from services.file import S3Handler
+
+from .embedding import EmbeddingHuggingFace, RandomEmbeddingModel
 from .knowledge_base import LangchainKnowledgeBase
 from .vector_store import VectorStore
 from logger import logger
+import torch
 
 
 class VectorizerInterface(ABC):
@@ -25,6 +28,8 @@ class Vectorizer(VectorizerInterface):
 
     def setup_vectorizer(self, chats: pd.DataFrame):
         EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME")
+        RANDOM_EMBEDDING = not torch.cuda.is_available()
+
         print(f"Setup vectorizer... {EMBEDDING_MODEL_NAME}")
         tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_NAME)
 
@@ -34,10 +39,12 @@ class Vectorizer(VectorizerInterface):
         print(f"split documents: {docs_splitted}")
 
         print(f"Create embedding model")
-        embedding_model = EmbeddingWrapper()
+        embedding_model = RandomEmbeddingModel() if RANDOM_EMBEDDING else EmbeddingHuggingFace()
 
         print(f"Create vector store")
-        self.store = VectorStore(docs_splitted, embedding_model.model)
+        self.store = VectorStore(knowledge_base=docs_splitted,
+                                 embedding_model=embedding_model,
+                                 file_handler=S3Handler())
 
     def save_vector_store(self, chat_id: str):
-        self.store.save(chat_id)
+        return self.store.save(chat_id)
