@@ -37,7 +37,7 @@ class VectorStore(VectorStoreInterface):
 
     def save(self, file_id: str) -> Annotated[str, "File name"]:
         print("save store")
-        path = f"/{file_id}.faiss"
+        path = f"{file_id}.faiss"
         self.store.save_local(path)
         self.file_handler.save_folder(path)
         return path

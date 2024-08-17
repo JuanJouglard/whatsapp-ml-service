@@ -23,12 +23,10 @@ class VectorizerInterface(ABC):
 
 class Vectorizer(VectorizerInterface):
 
-    def __init__(self, chats: pd.DataFrame):
-        self.setup_vectorizer(chats)
-
     def setup_vectorizer(self, chats: pd.DataFrame):
         EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME")
         RANDOM_EMBEDDING = not torch.cuda.is_available()
+        print(f"Using random embedding {RANDOM_EMBEDDING}")
 
         print(f"Setup vectorizer... {EMBEDDING_MODEL_NAME}")
         tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_NAME)
