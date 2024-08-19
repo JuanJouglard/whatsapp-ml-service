@@ -7,6 +7,8 @@ from services.file import FileHandler
 from factory.file_handler_factory import S3Factory
 from services.vector_store import VectorStore
 from models.query_result import Metadata, QueryDocument, QueryResult
+import os
+from langchain_huggingface import HuggingFaceEmbeddings
 
 router = APIRouter(prefix="/query",)
 
@@ -42,3 +44,14 @@ def query_chats(query: str, file_id: str, file_handler: Annotated[FileHandler, D
     response = store.similarity_search(query)
     print(f"Similar search: {response=}")
     return {"Similar queries": transform_response(response)}
+
+@router.get("/test")
+def query(query: str):
+    EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME")
+    print("Setup embedding model...")
+    embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+
+    print("Calculate embedding...")
+    vector = embedding.embed_query(query)
+    print(f"Vector: {vector}")
+    return {"vector": vector}
