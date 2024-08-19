@@ -4,7 +4,6 @@ pydantic
 python-dotenv
 boto3
 
-jupyterlab
 numpy
 nltk
 detoxify
