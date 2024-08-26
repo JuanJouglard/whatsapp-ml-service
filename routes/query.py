@@ -23,15 +23,12 @@ def get_embedding_model() -> Embeddings:
 
 def transform_response(response):
     return [
-            QueryResult(
-                document=QueryDocument(
+            QueryDocument(
                     metadata=Metadata(
                         user=doc.metadata['user'],
                         date=doc.metadata['date']
                     ),
                     content=doc.page_content
-                ),
-                score=score
             )
             for doc, score in response
         ]
@@ -42,8 +39,7 @@ def query_chats(query: str, file_id: str, file_handler: Annotated[FileHandler, D
                         file_handler=file_handler,
                         embedding_model=embedding_model)
     response = store.similarity_search(query)
-    print(f"Similar search: {response=}")
-    return {"Similar queries": transform_response(response)}
+    return {"relatedMessages": transform_response(response), "textResponse": "RAG response with context"}
 
 @router.get("/test")
 def query(query: str):
