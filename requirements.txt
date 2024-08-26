@@ -3,6 +3,7 @@ uvicorn
 pydantic
 python-dotenv
 boto3
+cloutpathlib
 
 numpy
 nltk
