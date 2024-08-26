@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import boto3
+from cloudpathlib import S3Path, S3Client
 import os
 from io import BytesIO
 import pandas as pd
@@ -28,8 +29,9 @@ class S3Handler(FileHandler):
 
     def __init__(self):
         ENDPOINT = os.getenv("ENDPOINT")
-        AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
-        AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
+        AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+        AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
         self.client = boto3.client('s3',
                                  endpoint_url=ENDPOINT,
                                  aws_access_key_id=AWS_ACCESS_KEY,
@@ -37,6 +39,12 @@ class S3Handler(FileHandler):
                                  aws_session_token=None,
                                  config=boto3.session.Config(signature_version='s3v4'),
                                  verify=False)
+
+        self.s3_client = S3Client(
+                                 endpoint_url=ENDPOINT,
+                                 aws_access_key_id=AWS_ACCESS_KEY,
+                                 aws_secret_access_key=AWS_SECRET_KEY,
+                )
 
     def read_file(self, file_id: str) -> pd.DataFrame:
         BUCKET_NAME = "conversations"
@@ -48,8 +56,12 @@ class S3Handler(FileHandler):
 
         return pd.DataFrame(pd.read_pickle(file_stream))
 
-    def read_folder(self, bucket: str, file_id: str):
-        pass
+    def read_folder(self, bucket: str, folder_name: str):
+        save_to = f"/tmp/{folder_name}"
+        cp = S3Path(f"s3://{bucket}/{folder_name}/", client=self.s3_client)
+        cp.download_to(save_to)
+        return save_to
+
 
     def save_folder(self, folder_path: str):
         BUCKET_NAME = "vectorstores"

@@ -26,8 +26,8 @@ class VectorStore(VectorStoreInterface):
         self.file_handler = file_handler
         if file_id:
             print("Loading vector store")
-            self.file_handler.read_folder("vectorstores", f"{file_id}.faiss")
-            self.store = FAISS.load_local(f"{file_id}.faiss", embedding_model, allow_dangerous_deserialization=True)
+            folder_path = self.file_handler.read_folder("vectorstores", f"{file_id}.faiss")
+            self.store = FAISS.load_local(folder_path, embedding_model, allow_dangerous_deserialization=True)
         else:
             self.store = FAISS.from_documents(knowledge_base, embedding_model, distance_strategy=DistanceStrategy.COSINE)
 
